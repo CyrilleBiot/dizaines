@@ -1,5 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+encoder-mots.py
+Logiciel pour l'apprentissage de l'encodade
+Niveaux Cycle 2, élèves à BEP.
+__author__ = "Cyrille BIOT <cyrille@cbiot.fr>"
+__copyright__ = "Copyleft"
+__credits__ = "Cyrille BIOT <cyrille@cbiot.fr>"
+__license__ = "GPL"
+__version__ = "1.0"
+__date__ = "2021/04/13"
+__maintainer__ = "Cyrille BIOT <cyrille@cbiot.fr>"
+__email__ = "cyrille@cbiot.fr"
+__status__ = "Devel"
+"""
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk, GdkPixbuf
@@ -100,13 +114,18 @@ class DizainesWindow(Gtk.Window):
         buttonChoix2.set_label("Difficile : cartes retournées")
         buttonChoix2.connect("toggled", self.on_button_toggled_choix, "2")
 
-        self.grid.attach(buttonChoix1,3,j+3,2,1)
-        self.grid.attach(buttonChoix2,3,j+4,2,1)
+        self.grid.attach(buttonChoix1,2,j+3,2,1)
+        self.grid.attach(buttonChoix2,2,j+4,2,1)
 
+        # A propos
+        btnAbout = Gtk.Button(label='A propos')
+        btnAbout.connect('clicked', self.on_about)
+        self.grid.attach(btnAbout,4,j+3,1,2)
+
+        # Score
         self.labelScore = Gtk.Label(label="Score : ")
         self.labelScore.set_name('score')
-        self.grid.attach(self.labelScore,0,j+5,5,1)
-
+        self.grid.attach(self.labelScore, 0, j + 5, 5, 1)
 
     def recup_valeur(self, button, value):
 
@@ -172,6 +191,28 @@ class DizainesWindow(Gtk.Window):
                 self.choix_cases = []
 
         self.choix_tous_les.append(value)
+        if self.tour == 10:
+            print('fini')
+            self.partie_terminee(self, "Partie terminée !", "Réessayer ou tenter un autre niveau ;)")
+
+    def partie_terminee(self, widget, message1, message2):
+        """
+        FOnction ouvrant une dialog box d'alerte
+        :param widget:
+        :param message1: Le titre du message
+        :param message2: Le contenu du message
+        :return:
+        """
+        dialog = Gtk.MessageDialog(
+            transient_for=self,
+            flags=0,
+            message_type=Gtk.MessageType.ERROR,
+            buttons=Gtk.ButtonsType.OK,
+            text=message1,
+        )
+        dialog.format_secondary_text(message2)
+        dialog.run()
+        dialog.destroy()
 
 
     def on_button_toggled(self, button, name):
@@ -223,7 +264,64 @@ class DizainesWindow(Gtk.Window):
             style_provider,
             Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
         )
+    def on_about(self, widget):
+        """
+        Fonction de la Boite de Dialogue About
+        :param widget:
+        :return:
+        """
+        # Recuperation n° de version
+        print(__doc__)
+        lignes = __doc__.split("\n")
+        for l in lignes:
+            if '__version__' in l:
+                version = l[15:-1]
+            if '__date__' in l:
+                dateGtKBox = l[12:-1]
 
+        authors = ["Cyrille BIOT"]
+        documenters = ["Cyrille BIOT"]
+        self.dialog = Gtk.AboutDialog()
+        logo = GdkPixbuf.Pixbuf.new_from_file(self.dirBase+"apropos.png")
+        if logo != None:
+            self.dialog.set_logo(logo)
+        else:
+            print("A GdkPixbuf Error has occurred.")
+        self.dialog.set_name("Gtk.AboutDialog")
+        self.dialog.set_version(version)
+        self.dialog.set_copyright("(C) 2020 Cyrille BIOT")
+        self.dialog.set_comments("dizaines.py.\n\n" \
+                                 "[" + dateGtKBox + "]")
+        self.dialog.set_license("GNU General Public License (GPL), version 3.\n"
+                                "This program is free software: you can redistribute it and/or modify\n"
+                                "it under the terms of the GNU General Public License as published by\n"
+                                "the Free Software Foundation, either version 3 of the License, or\n"
+                                "(at your option) any later version.\n"
+                                "\n"
+                                "This program is distributed in the hope that it will be useful,\n"
+                                "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+                                "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+                                "GNU General Public License for more details.\n"
+                                "You should have received a copy of the GNU General Public License\n"
+                                "along with this program.  If not, see <https://www.gnu.org/licenses/>\n")
+        self.dialog.set_website("https://cbiot.fr")
+        self.dialog.set_website_label("cbiot.fr")
+        self.dialog.set_website("https://github.com/CyrilleBiot/dizaines")
+        self.dialog.set_website_label("GIT ")
+        self.dialog.set_authors(authors)
+        self.dialog.set_documenters(documenters)
+        self.dialog.set_translator_credits("Cyrille BIOT")
+        self.dialog.connect("response", self.on_about_reponse)
+        self.dialog.run()
+
+    def on_about_reponse(self, dialog, response):
+        """
+        Fonction fermant la boite de dialogue About
+        :param widget:
+        :param response:
+        :return:
+        """
+        self.dialog.destroy()
 
 win = DizainesWindow()
 win.gtk_style()
