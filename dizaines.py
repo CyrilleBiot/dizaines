@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 encoder-mots.py
-Logiciel pour l'apprentissage de l'encodade
+Logiciel pour l'apprentissage des correspondances
+Ecriture Lettrée / Chiffrée des nombres de 0 à 100
 Niveaux Cycle 2, élèves à BEP.
 __author__ = "Cyrille BIOT <cyrille@cbiot.fr>"
 __copyright__ = "Copyleft"
@@ -28,8 +29,10 @@ class DizainesWindow(Gtk.Window):
         self.choix_cases = []
         # Mise en mémoire des cartes déjà jouées
         self.choix_tous_les = []
+        self.list_of_random_items = []
         self.score = 0
         self.tour = 0
+        self.niveau = 1
 
         # Initialisation d'une zone de plage
         self.splitPlage = [1,10]
@@ -43,8 +46,10 @@ class DizainesWindow(Gtk.Window):
         self.add(self.grid)
 
         # Création d'un grid de bouton 5 X 4
-        self.btn = [0] * 21
-        numberBtn = 1
+        self.btn = [0] * 20
+        print(self.btn)
+        print(len(self.btn))
+        numberBtn = 0
 
         for j in range(0,4):
             for i in range(0,5):
@@ -53,9 +58,12 @@ class DizainesWindow(Gtk.Window):
                 img = Gtk.Image.new_from_pixbuf(pixbuf)
                 self.btn[numberBtn]= Gtk.Button(image=img)
                 #self.btn[numberBtn].connect("clicked", self.recup_valeur, '0.png')
-                print(self.btn[numberBtn])
+                #print(self.btn[numberBtn])
                 self.grid.attach(self.btn[numberBtn],i,j,1,1)
                 numberBtn += 1
+        print(self.btn)
+        print(len(self.btn))
+
 
         # Les boutons de choix
         button1 = Gtk.RadioButton.new_with_label_from_widget(None, "01-10")
@@ -108,11 +116,11 @@ class DizainesWindow(Gtk.Window):
 
         # Les boutons de choix
         buttonChoix1 = Gtk.RadioButton.new_with_label_from_widget(None, "Simple : cartes découvertes")
-        buttonChoix1.connect("toggled", self.on_button_toggled_choix, "1")
+        buttonChoix1.connect("toggled", self.on_button_toggled_choix, 1)
 
         buttonChoix2 = Gtk.RadioButton.new_from_widget(buttonChoix1)
         buttonChoix2.set_label("Difficile : cartes retournées")
-        buttonChoix2.connect("toggled", self.on_button_toggled_choix, "2")
+        buttonChoix2.connect("toggled", self.on_button_toggled_choix, 2)
 
         self.grid.attach(buttonChoix1,2,j+3,2,1)
         self.grid.attach(buttonChoix2,2,j+4,2,1)
@@ -127,12 +135,14 @@ class DizainesWindow(Gtk.Window):
         self.labelScore.set_name('score')
         self.grid.attach(self.labelScore, 0, j + 5, 5, 1)
 
-    def recup_valeur(self, button, value):
-
-        print(value)
-        # Enregistre tous les choix dans un tableau
-        print("Liste de tous les choix", self.choix_tous_les)
-
+    def traitement_cartes(self, button, value, stage):
+        '''
+        :param button:
+        :param value: La référence de la carte (str dans list)
+        :param stage: Le niveau (integer) 1 facile, 2 difficile
+        :return:
+        '''
+        print("Valeur : ", value)
 
         if value not in self.choix_tous_les:
             # Stockage de la variable
@@ -144,53 +154,66 @@ class DizainesWindow(Gtk.Window):
             self.choix_cases.append(value)
             print(self.choix_cases)
 
-
             # 1 clic. On desactive la case
             if len(self.choix_cases) == 2:
-                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename="images/R" + value,
-                                                                 width=100, height=100,
-                                                                 preserve_aspect_ratio=True)
-                img = Gtk.Image.new_from_pixbuf(pixbuf)
-                button.set_image(img)
+                if self.niveau == 1:
+                    pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename="images/R" + value,
+                                                                     width=100, height=100,
+                                                                     preserve_aspect_ratio=True)
+                    img = Gtk.Image.new_from_pixbuf(pixbuf)
+                    button.set_image(img)
+                else:
+                    pass
+                    print("Niveau 2")
 
             # 2 clics. On compare les 2 choix
             if len(self.choix_cases) == 4:
-                if self.choix_cases[1][1:-4] == self.choix_cases[3][1:-4]:
-                    # GAGNE
-                    print("gagné")
-                    # On efface les cartes deja jouées
-                    pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename="images/0.png",
-                                                                     width=100, height=100,
-                                                                     preserve_aspect_ratio=True)
-                    img = Gtk.Image.new_from_pixbuf(pixbuf)
-                    img2 = Gtk.Image.new_from_pixbuf(pixbuf)
-                    # On colorie les cases déjà utilisées
-                    self.choix_cases[0].set_image(img)
-                    self.choix_cases[2].set_image(img2)
-                    self.score += 1
-                    self.tour += 1
-                    print('score : ', self.score)
-                    self.labelScore.set_text("Score : " +  str(self.score) + " sur " + str(self.tour))
+                if self.niveau == 1:
+                    if self.choix_cases[1][1:-4] == self.choix_cases[3][1:-4]:
+                        # GAGNE
+                        print("gagné")
+                        # On efface les cartes deja jouées
+                        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename="images/0.png",
+                                                                         width=100, height=100,
+                                                                         preserve_aspect_ratio=True)
+                        img = Gtk.Image.new_from_pixbuf(pixbuf)
+                        img2 = Gtk.Image.new_from_pixbuf(pixbuf)
+                        # On colorie les cases déjà utilisées
+                        self.choix_cases[0].set_image(img)
+                        self.choix_cases[2].set_image(img2)
+                        self.score += 1
+                        self.tour += 1
+                        print('score : ', self.score)
+                        self.labelScore.set_text("Score : " +  str(self.score) + " sur " + str(self.tour))
+                    else:
+                        # PERDU
+                        print('perdu')
+                        # On efface les cartes deja jouées
+                        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename="images/error.png",
+                                                                         width=100, height=100,
+                                                                         preserve_aspect_ratio=True)
+                        img = Gtk.Image.new_from_pixbuf(pixbuf)
+                        img2 = Gtk.Image.new_from_pixbuf(pixbuf)
+                        # On colorie les cases déjà utilisées
+                        self.choix_cases[0].set_image(img)
+                        self.choix_cases[2].set_image(img2)
+                        self.tour += 1
+                        print('score : ', self.score)
+                        self.labelScore.set_text("Score : " +  str(self.score) + " sur " + str(self.tour))
                 else:
-                    # PERDU
-                    print('perdu')
-                    # On efface les cartes deja jouées
-                    pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename="images/error.png",
-                                                                     width=100, height=100,
-                                                                     preserve_aspect_ratio=True)
-                    img = Gtk.Image.new_from_pixbuf(pixbuf)
-                    img2 = Gtk.Image.new_from_pixbuf(pixbuf)
-                    # On colorie les cases déjà utilisées
-                    self.choix_cases[0].set_image(img)
-                    self.choix_cases[2].set_image(img2)
-                    self.tour += 1
-                    print('score : ', self.score)
-                    self.labelScore.set_text("Score : " +  str(self.score) + " sur " + str(self.tour))
+                    pass
+                    print("Niveau 2")
 
                 # On réinitialise la zone de stockage
-                self.choix_cases = []
+                self.choix_cases.clear()
 
+        # Incrémente le tableau des cartes tirées
         self.choix_tous_les.append(value)
+
+        # Liste les cartes déjà jouées
+        print("Liste de tous les choix", self.choix_tous_les)
+
+        # La partie est finie
         if self.tour == 10:
             print('fini')
             self.partie_terminee(self, "Partie terminée !", "Réessayer ou tenter un autre niveau ;)")
@@ -222,11 +245,27 @@ class DizainesWindow(Gtk.Window):
             print(self.splitPlage[0],self.splitPlage[1])
 
     def on_button_toggled_choix(self, button, name):
-        pass
+        if button.get_active():
+            self.niveau = name
+            print(self.niveau)
 
     def charger_jeu(self, button):
 
+        self.choix_tous_les.clear()
+        print("len liste_chois_tous", len(self.choix_tous_les))
+        self.choix_cases.clear()
+        self.list_of_random_items.clear()
+        self.score = 0
+        self.tour = 0
+        print(self.choix_cases)
+        print(self.choix_tous_les)
+        print(self.list_of_random_items)
+        print("ICIICICCIICICICI I : ",len(self.list_of_random_items))
 
+
+
+        print("NIVEAU ========= ", self.niveau )
+        print("NIVEAU TYPE", type(self.niveau))
 
         print(int(self.splitPlage[0]), int(self.splitPlage[1])+1)
         liste = []
@@ -236,19 +275,31 @@ class DizainesWindow(Gtk.Window):
             liste.append(a)
             liste.append(b)
         self.list_of_random_items = sample(liste, len(liste))
-        print(liste)
+        print("list of random item", self.list_of_random_items)
 
         pos  = 0
-        for i in range(1,21):
+        for i in range(0,20):
             print(i)
-            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename="images/"+self.list_of_random_items[pos],
-                                                             width=100, height=100,
-                                                             preserve_aspect_ratio=True)
-            img = Gtk.Image.new_from_pixbuf(pixbuf)
-            self.btn[i].set_image(img)
-            self.btn[i].connect("clicked", self.recup_valeur, self.list_of_random_items[pos] )
+            if self.niveau == 1:
+                # On montre les cartes // NIVEAU FACILE
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename="images/"+self.list_of_random_items[pos],
+                                                                 width=100, height=100,
+                                                                 preserve_aspect_ratio=True)
+                img = Gtk.Image.new_from_pixbuf(pixbuf)
+                self.btn[i].set_image(img)
+                self.btn[i].connect("clicked", self.traitement_cartes, self.list_of_random_items[pos], self.niveau)
 
+            else:
+                # On cache les cartes // NIVEAU DIFFICILE
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename="images/0.png",
+                                                                 width=100, height=100,
+                                                                 preserve_aspect_ratio=True)
+                img = Gtk.Image.new_from_pixbuf(pixbuf)
+                self.btn[i].set_image(img)
+                self.btn[i].connect("clicked", self.traitement_cartes, self.list_of_random_items[pos], self.niveau)
             pos += 1
+
+        print("len liste_chois_tous", len(self.choix_tous_les))
 
     def gtk_style(self):
         """
