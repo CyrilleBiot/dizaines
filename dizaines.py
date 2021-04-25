@@ -34,6 +34,8 @@ class DizainesWindow(Gtk.Window):
         self.tour = 0
         self.niveau = 1
 
+        self.handles = {};
+
         # Initialisation d'une zone de plage
         self.splitPlage = [1,10]
 
@@ -287,7 +289,10 @@ class DizainesWindow(Gtk.Window):
                                                                  preserve_aspect_ratio=True)
                 img = Gtk.Image.new_from_pixbuf(pixbuf)
                 self.btn[i].set_image(img)
-                self.btn[i].connect("clicked", self.traitement_cartes, self.list_of_random_items[pos], self.niveau)
+
+                if i in self.handles:
+                    self.btn[i].disconnect(self.handles[i])
+                self.handles[i] = self.btn[i].connect("clicked", self.traitement_cartes, self.list_of_random_items[pos], self.niveau)
 
             else:
                 # On cache les cartes // NIVEAU DIFFICILE
