@@ -68,11 +68,16 @@ class DizainesWindow(Gtk.Window):
         self.grid = Gtk.Grid()
         self.add(self.grid)
 
+        # Score
+        self.labelScore = Gtk.Label(label="Score : ")
+        self.labelScore.set_name('score')
+        self.grid.attach(self.labelScore, 0, 0, 5, 1)
+
         # Création d'un grid de bouton 5 X 4
         self.btn = [0] * 20
         numberBtn = 0
 
-        for j in range(0,4):
+        for j in range(1,5):
             for i in range(0,5):
                 pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename="images/0.png", width=100, height=100,
                                                                  preserve_aspect_ratio=True)
@@ -111,7 +116,14 @@ class DizainesWindow(Gtk.Window):
         button9.connect("toggled", self.on_button_toggled, "9")
 
         button10 = Gtk.RadioButton.new_with_mnemonic_from_widget(button1, "91-100")
-        button10.connect("toggled", self.on_button_toggled, "100")
+        button10.connect("toggled", self.on_button_toggled, "10")
+
+        button11 = Gtk.RadioButton.new_with_mnemonic_from_widget(button1, "61-80")
+        button11.connect("toggled", self.on_button_toggled, "11")
+
+        button12 = Gtk.RadioButton.new_with_mnemonic_from_widget(button1, "81-100")
+        button12.connect("toggled", self.on_button_toggled, "12")
+
 
         self.grid.attach(button1,0,j+1,1,1)
         self.grid.attach(button2,1,j+1,1,1)
@@ -123,12 +135,15 @@ class DizainesWindow(Gtk.Window):
         self.grid.attach(button8,2,j+2,1,1)
         self.grid.attach(button9,3,j+2,1,1)
         self.grid.attach(button10,4,j+2,1,1)
+        self.grid.attach(button11,0,j+3,1,1)
+        self.grid.attach(button12,1,j+3,1,1)
+
 
         # Le bouton JOUER
         btnJouer = Gtk.Button(label="JOUER")
         btnJouer.connect('clicked', self.charger_jeu)
         btnJouer.set_name('btnJouer')
-        self.grid.attach(btnJouer,0,j+3,2,2)
+        self.grid.attach(btnJouer,0,j+5,5,1)
 
         # Les boutons de choix
         buttonChoix1 = Gtk.RadioButton.new_with_label_from_widget(None, "Simple : cartes découvertes")
@@ -138,18 +153,15 @@ class DizainesWindow(Gtk.Window):
         buttonChoix2.set_label("Difficile : cartes retournées")
         buttonChoix2.connect("toggled", self.on_button_toggled_choix, 2)
 
-        self.grid.attach(buttonChoix1,2,j+3,2,1)
+        self.grid.attach(buttonChoix1,0,j+4,2,1)
         self.grid.attach(buttonChoix2,2,j+4,2,1)
 
         # A propos
         btnAbout = Gtk.Button(label='A propos')
         btnAbout.connect('clicked', self.on_about)
-        self.grid.attach(btnAbout,4,j+3,1,2)
+        self.grid.attach(btnAbout,4,j+4,1,1)
 
-        # Score
-        self.labelScore = Gtk.Label(label="Score : ")
-        self.labelScore.set_name('score')
-        self.grid.attach(self.labelScore, 0, j + 5, 5, 1)
+
 
     def traitement_cartes(self, button, value, stage):
         '''
@@ -178,14 +190,14 @@ class DizainesWindow(Gtk.Window):
                     button.set_image(img)
                 else:
                     pass
-                    d.d.print("Niveau 2")
+                    self.p.dprint("Niveau 2")
 
             # 2 clics. On compare les 2 choix
             if len(self.choix_cases) == 4:
                 if self.niveau == 1:
                     if self.choix_cases[1][1:-4] == self.choix_cases[3][1:-4]:
                         # GAGNE
-                        print("gagné")
+                        self.p.dprint("gagné")
                         # On efface les cartes deja jouées
                         pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename="images/0.png",
                                                                          width=100, height=100,
@@ -200,8 +212,8 @@ class DizainesWindow(Gtk.Window):
                         self.labelScore.set_text("Score : " +  str(self.score) + " sur " + str(self.tour))
                     else:
                         # PERDU
-                        print('perdu')
-                        # On efface les cartes deja jouées
+                        self.p.dprint("perdu")
+                    # On efface les cartes deja jouées
                         pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename="images/error.png",
                                                                          width=100, height=100,
                                                                          preserve_aspect_ratio=True)
@@ -255,7 +267,7 @@ class DizainesWindow(Gtk.Window):
     def on_button_toggled_choix(self, button, name):
         if button.get_active():
             self.niveau = name
-            d.print(self.niveau)
+            print(self.niveau)
 
     def charger_jeu(self, button):
 
@@ -265,13 +277,26 @@ class DizainesWindow(Gtk.Window):
         self.score = 0
         self.tour = 0
 
+        # DEBUG
+        self.p.dprint(self.splitPlage)
+
         liste = []
-        for i in range(int(self.splitPlage[0]), int(self.splitPlage[1])+1,1):
-            a = "C"+str(i)+".png"
-            b = "L"+str(i)+".png"
-            liste.append(a)
-            liste.append(b)
-        self.list_of_random_items = sample(liste, len(liste))
+        if self.splitPlage not in  [['81', '100'],['61', '80']]:
+            for i in range(int(self.splitPlage[0]), int(self.splitPlage[1])+1, 1):
+                a = "C"+str(i)+".png"
+                b = "L"+str(i)+".png"
+                liste.append(a)
+                liste.append(b)
+            self.list_of_random_items = sample(liste, len(liste))
+        else:
+            self.p.dprint("plage20")
+            for i in range(int(self.splitPlage[0]), int(self.splitPlage[1]) + 1, 2):
+                a = "C" + str(i) + ".png"
+                b = "L" + str(i) + ".png"
+                liste.append(a)
+                liste.append(b)
+            self.list_of_random_items = sample(liste, len(liste))
+
 
         pos  = 0
         for i in range(0,20):
