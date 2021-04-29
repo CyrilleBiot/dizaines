@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-encoder-mots.py
+dizaines.py
 Logiciel pour l'apprentissage des correspondances
 Ecriture Lettrée / Chiffrée des nombres de 0 à 100
 Niveaux Cycle 2, élèves à BEP.
@@ -9,12 +9,13 @@ __author__ = "Cyrille BIOT <cyrille@cbiot.fr>"
 __copyright__ = "Copyleft"
 __credits__ = "Cyrille BIOT <cyrille@cbiot.fr>"
 __license__ = "GPL"
-__version__ = "1.0"
-__date__ = "2021/04/13"
+__version__ = "1.2"
+__date__ = "2021/04/28"
 __maintainer__ = "Cyrille BIOT <cyrille@cbiot.fr>"
 __email__ = "cyrille@cbiot.fr"
 __status__ = "Devel"
 """
+
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk, GdkPixbuf
@@ -23,6 +24,12 @@ from random import sample
 class Printer:
     '''
     Classe de debug
+        Utilisation :
+        Utiliser
+            self.p.dprint(message)
+        Plutôt que
+            print(message)
+        Passer debug=True (afficher les messages de debug) ou debug=False
     '''
     def __init__(self, debug=True):
         self.debug = debug
@@ -124,7 +131,7 @@ class DizainesWindow(Gtk.Window):
         button12 = Gtk.RadioButton.new_with_mnemonic_from_widget(button1, "81-100")
         button12.connect("toggled", self.on_button_toggled, "12")
 
-
+        # Attache des boutons
         self.grid.attach(button1,0,j+1,1,1)
         self.grid.attach(button2,1,j+1,1,1)
         self.grid.attach(button3,2,j+1,1,1)
@@ -138,7 +145,6 @@ class DizainesWindow(Gtk.Window):
         self.grid.attach(button11,0,j+3,1,1)
         self.grid.attach(button12,1,j+3,1,1)
 
-
         # Le bouton JOUER
         btnJouer = Gtk.Button(label="JOUER")
         btnJouer.connect('clicked', self.charger_jeu)
@@ -146,11 +152,11 @@ class DizainesWindow(Gtk.Window):
         self.grid.attach(btnJouer,0,j+5,5,1)
 
         # Les boutons de choix
-        buttonChoix1 = Gtk.RadioButton.new_with_label_from_widget(None, "Simple : cartes découvertes")
+        buttonChoix1 = Gtk.RadioButton.new_with_label_from_widget(None, "Simple : cartes découvertes.")
         buttonChoix1.connect("toggled", self.on_button_toggled_choix, 1)
 
         buttonChoix2 = Gtk.RadioButton.new_from_widget(buttonChoix1)
-        buttonChoix2.set_label("Difficile : cartes retournées")
+        buttonChoix2.set_label("Difficile : cartes retournées.")
         buttonChoix2.connect("toggled", self.on_button_toggled_choix, 2)
 
         self.grid.attach(buttonChoix1,0,j+4,2,1)
@@ -160,8 +166,6 @@ class DizainesWindow(Gtk.Window):
         btnAbout = Gtk.Button(label='A propos')
         btnAbout.connect('clicked', self.on_about)
         self.grid.attach(btnAbout,4,j+4,1,1)
-
-
 
     def traitement_cartes(self, button, value, stage):
         '''
@@ -179,6 +183,10 @@ class DizainesWindow(Gtk.Window):
             # [3] sa valeur
             self.choix_cases.append(button)
             self.choix_cases.append(value)
+
+
+            self.p.dprint(value)
+
 
             # 1 clic. On desactive la case
             if len(self.choix_cases) == 2:
@@ -308,6 +316,7 @@ class DizainesWindow(Gtk.Window):
                 img = Gtk.Image.new_from_pixbuf(pixbuf)
                 self.btn[i].set_image(img)
 
+                # Deconnexion éventuelles des callbacks déjà utilisés
                 if i in self.handles:
                     self.btn[i].disconnect(self.handles[i])
                 self.handles[i] = self.btn[i].connect("clicked", self.traitement_cartes, self.list_of_random_items[pos], self.niveau)
@@ -326,7 +335,7 @@ class DizainesWindow(Gtk.Window):
     def gtk_style(self):
         """
         Fonction definition de CSS de l'application
-        Le fichier css : pendu-peda-gtk.css
+        Le fichier css : style.css
         :return:
         """
         style_provider = Gtk.CssProvider()
@@ -344,7 +353,7 @@ class DizainesWindow(Gtk.Window):
         :return:
         """
         # Recuperation n° de version
-        d.print(__doc__)
+
         lignes = __doc__.split("\n")
         for l in lignes:
             if '__version__' in l:
@@ -362,7 +371,8 @@ class DizainesWindow(Gtk.Window):
             print("A GdkPixbuf Error has occurred.")
         self.dialog.set_name("Gtk.AboutDialog")
         self.dialog.set_version(version)
-        self.dialog.set_copyright("(C) 2020 Cyrille BIOT")
+        self.dialog.set_copyright("(C) 2021 Cyrille BIOT")
+        self.dialog.set_program_name("Dizaines")
         self.dialog.set_comments("dizaines.py.\n\n" \
                                  "[" + dateGtKBox + "]")
         self.dialog.set_license("GNU General Public License (GPL), version 3.\n"
