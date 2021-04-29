@@ -20,3 +20,9 @@ cd dizaines
 # Screenshoots
 
 ![screenshoot](./screenshoot002.png)
+
+# Dépendances
+python3, python3-gi
+
+# Merci
+[A Jérémie pour son oeil vigilant sur les callbacks ;)](https://github.com/mothsART)
