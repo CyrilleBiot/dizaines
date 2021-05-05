@@ -10,7 +10,7 @@ __copyright__ = "Copyleft"
 __credits__ = "Cyrille BIOT <cyrille@cbiot.fr>"
 __license__ = "GPL"
 __version__ = "1.2"
-__date__ = "2021/04/28"
+__date__ = "2021/05/05"
 __maintainer__ = "Cyrille BIOT <cyrille@cbiot.fr>"
 __email__ = "cyrille@cbiot.fr"
 __status__ = "Devel"
@@ -20,6 +20,9 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk, GdkPixbuf
 from random import sample
+
+from gi.repository import GLib
+
 
 class Printer:
     '''
@@ -160,12 +163,13 @@ class DizainesWindow(Gtk.Window):
         buttonChoix2.connect("toggled", self.on_button_toggled_choix, 2)
 
         self.grid.attach(buttonChoix1,0,j+4,2,1)
-        self.grid.attach(buttonChoix2,2,j+4,2,1)
+        #self.grid.attach(buttonChoix2,2,j+4,2,1)
 
         # A propos
         btnAbout = Gtk.Button(label='A propos')
         btnAbout.connect('clicked', self.on_about)
         self.grid.attach(btnAbout,4,j+4,1,1)
+
 
     def traitement_cartes(self, button, value, stage):
         '''
@@ -184,28 +188,26 @@ class DizainesWindow(Gtk.Window):
             self.choix_cases.append(button)
             self.choix_cases.append(value)
 
-
+            # DEBUG
             self.p.dprint(value)
-
+            self.p.dprint(self.niveau)
 
             # 1 clic. On desactive la case
             if len(self.choix_cases) == 2:
-                if self.niveau == 1:
-                    pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename="images/R" + value,
-                                                                     width=100, height=100,
-                                                                     preserve_aspect_ratio=True)
-                    img = Gtk.Image.new_from_pixbuf(pixbuf)
-                    button.set_image(img)
-                else:
-                    pass
-                    self.p.dprint("Niveau 2")
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename="images/R" + value,
+                                                                 width=100, height=100,
+                                                                 preserve_aspect_ratio=True)
+                img = Gtk.Image.new_from_pixbuf(pixbuf)
+                button.set_image(img)
+                pass
 
-            # 2 clics. On compare les 2 choix
-            if len(self.choix_cases) == 4:
-                if self.niveau == 1:
+            else:
+                # 2 clics. On compare les 2 choix
+                # Niveau 1
+                if len(self.choix_cases) == 4:
                     if self.choix_cases[1][1:-4] == self.choix_cases[3][1:-4]:
                         # GAGNE
-                        self.p.dprint("gagné")
+                        self.p.dprint("Niveau 1, gagné")
                         # On efface les cartes deja jouées
                         pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename="images/0.png",
                                                                          width=100, height=100,
@@ -220,8 +222,8 @@ class DizainesWindow(Gtk.Window):
                         self.labelScore.set_text("Score : " +  str(self.score) + " sur " + str(self.tour))
                     else:
                         # PERDU
-                        self.p.dprint("perdu")
-                    # On efface les cartes deja jouées
+                        self.p.dprint("Niveau 1, perdu")
+                        # On efface les cartes deja jouées
                         pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename="images/error.png",
                                                                          width=100, height=100,
                                                                          preserve_aspect_ratio=True)
@@ -232,20 +234,30 @@ class DizainesWindow(Gtk.Window):
                         self.choix_cases[2].set_image(img2)
                         self.tour += 1
                         self.labelScore.set_text("Score : " +  str(self.score) + " sur " + str(self.tour))
-                else:
-                    pass
-                    print("Niveau 2")
 
                 # On réinitialise la zone de stockage
                 self.choix_cases.clear()
 
-        # Incrémente le tableau des cartes tirées
-        self.choix_tous_les.append(value)
-
+            # Incrémente le tableau des cartes tirées
+            self.choix_tous_les.append(value)
 
         # La partie est finie
         if self.tour == 10:
             self.partie_terminee(self, "Partie terminée !", "Réessayer ou tenter un autre niveau ;)")
+
+    def wait(self):
+        GLib.timeout_add(500, self.retourImage)
+
+    def retourImage(self):
+        print("retourImage : ", self.choix_cases)
+        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(filename="images/0.png",
+                                                         width=100, height=100,
+                                                         preserve_aspect_ratio=True)
+        img = Gtk.Image.new_from_pixbuf(pixbuf)
+        img2 = Gtk.Image.new_from_pixbuf(pixbuf)
+        # On colorie les cases déjà utilisées
+        self.choix_cases[0].set_image(img)
+        self.choix_cases[2].set_image(img2)
 
     def partie_terminee(self, widget, message1, message2):
         """
