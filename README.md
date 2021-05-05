@@ -13,13 +13,18 @@ Les messages de DEBUG sont toujours présents.
 ```
 git clone git@github.com:CyrilleBiot/dizaines.git
 cd dizaines
-./dizaines.py
+./source/dizaines.py
+```
+ou via le paquet debian
+
+```
+wget https://github.com/CyrilleBiot/dizaines/raw/only-level-1/dizaines_1.2_all.deb
+sudo dpkg -i  dizaines_1.2_all.deb
 ```
 
-
 # Screenshoots
-
 ![screenshoot](./screenshoot002.png)
+
 
 # Dépendances
 python3, python3-gi
