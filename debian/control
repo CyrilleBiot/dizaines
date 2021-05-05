@@ -1,0 +1,12 @@
+Source: dizaines
+Section: education
+Priority: extra
+Maintainer: Cyrille Biot <cyrille@cbiot.fr>
+Build-Depends: debhelper (>= 9)
+Homepage: https://github.com/CyrilleBiot/encoder_mots
+
+Package: dizaines
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, python3, python3-gi
+Homepage: https://github.com/CyrilleBiot/dizaines
+Description: Correspondances écriture lettrée / chiffrée des nombres de 1 à 100.

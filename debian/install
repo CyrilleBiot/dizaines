@@ -1,0 +1,6 @@
+source/dizaines.py usr/share/dizaines/
+source/style.css usr/share/dizaines/
+source/apropos.png  usr/share/dizaines/
+source/images usr/share/dizaines/
+source/dizaines.desktop /usr/share/applications/
+
